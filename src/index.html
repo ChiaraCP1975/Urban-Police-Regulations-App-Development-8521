@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prontuario Sanzioni</title>
+    <!-- Aggiungi il meta charset UTF-8 due volte per assicurarsi che i simboli speciali vengano visualizzati correttamente -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+      /* Assicura che i simboli della valuta vengano visualizzati correttamente */
+      @font-face {
+        font-family: 'CustomFont';
+        src: local('Arial'), local('Helvetica'), local('sans-serif');
+        unicode-range: U+20AC; /* Copre il simbolo dell'Euro */
+      }
+      body {
+        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

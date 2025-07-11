@@ -21,18 +21,35 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null, isSubmitti
   const [formTouched, setFormTouched] = useState(false);
 
   const categorie = [
-    'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'',
-    'CONVIVENZA CIVILE',
-    'VIVIBILITA\'',
-    'IGIENE E PUBBLICO DECORO',
-    'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE',
-    'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI',
-    'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE',
-    'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI',
-    'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE',
-    'PASCOLO E CONDUZIONE DI BESTIAME',
-    'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI'
+    { value: 'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'', label: 'Sicurezza Urbana e Pubblica Incolumità', color: 'red' },
+    { value: 'CONVIVENZA CIVILE', label: 'Convivenza Civile', color: 'emerald' },
+    { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
+    { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Pubblico Decoro', color: 'teal' },
+    { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica e Tranquillità', color: 'purple' },
+    { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri, Attività Lavorative e Manifestazioni', color: 'orange' },
+    { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza e Degrado Ambientale Rurale', color: 'amber' },
+    { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni, Fossi, Alberi e Piante', color: 'lime' },
+    { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione delle Acque Piovane ed Irrigue', color: 'cyan' },
+    { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Conduzione di Bestiame', color: 'green' },
+    { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni Privati, Comunali, Demaniali', color: 'indigo' }
   ];
+
+  const getOptionColor = (color) => {
+    const colorMap = {
+      'red': 'text-red-700',
+      'emerald': 'text-emerald-700',
+      'blue': 'text-blue-700',
+      'teal': 'text-teal-700',
+      'purple': 'text-purple-700',
+      'orange': 'text-orange-700',
+      'amber': 'text-amber-700',
+      'lime': 'text-lime-700',
+      'cyan': 'text-cyan-700',
+      'green': 'text-green-700',
+      'indigo': 'text-indigo-700'
+    };
+    return colorMap[color] || 'text-gray-700';
+  };
 
   useEffect(() => {
     if (violazione) {
@@ -230,26 +247,31 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null, isSubmitti
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                          PMR (€) *
+                          PMR *
                           {errors.pmr && (
                             <span className="ml-1 text-red-500" title={errors.pmr}>
                               <SafeIcon icon={FiAlertCircle} className="text-xs" />
                             </span>
                           )}
                         </label>
-                        <input
-                          type="text"
-                          placeholder="0,00"
-                          value={formData.pmr}
-                          onChange={(e) => handleInputChange('pmr', e.target.value)}
-                          className={`w-full px-3 py-2 border ${errors.pmr ? 'border-red-300 bg-red-50' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
-                          required
-                          disabled={isSubmitting}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {errors.pmr && (
-                          <p className="mt-1 text-xs text-red-500">{errors.pmr}</p>
-                        )}
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                            €
+                          </span>
+                          <input
+                            type="text"
+                            placeholder="0,00"
+                            value={formData.pmr}
+                            onChange={(e) => handleInputChange('pmr', e.target.value)}
+                            className={`w-full pl-7 pr-3 py-2 border ${errors.pmr ? 'border-red-300 bg-red-50' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                            required
+                            disabled={isSubmitting}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          {errors.pmr && (
+                            <p className="mt-1 text-xs text-red-500">{errors.pmr}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -269,9 +291,15 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null, isSubmitti
                         disabled={isSubmitting}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <option value="">Seleziona categoria...</option>
+                        <option value="" className="text-gray-500">Seleziona categoria...</option>
                         {categorie.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
+                          <option 
+                            key={cat.value} 
+                            value={cat.value}
+                            className={getOptionColor(cat.color)}
+                          >
+                            {cat.label}
+                          </option>
                         ))}
                       </select>
                       {errors.categoria && (
