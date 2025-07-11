@@ -6,12 +6,14 @@ const { FiPlus } = FiIcons;
 
 const ActionButtons = ({ onAddViolazione }) => {
   return (
-    <div className="flex justify-center mb-8">
+    <div className="flex justify-center mb-8 slide-up">
       <button
         onClick={onAddViolazione}
-        className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center space-x-2 transform hover:scale-105"
+        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center space-x-3 transform hover:scale-105 hover:from-blue-700 hover:to-blue-800"
       >
-        <SafeIcon icon={FiPlus} className="text-xl" />
+        <div className="bg-white/20 p-1 rounded-full">
+          <SafeIcon icon={FiPlus} className="text-xl" />
+        </div>
         <span className="font-semibold">Inserisci Violazione</span>
       </button>
     </div>

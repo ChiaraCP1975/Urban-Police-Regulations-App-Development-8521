@@ -12,22 +12,34 @@ const ErrorMessage = ({ message, onRetry }) => {
       animate={{ opacity: 1, y: 0 }}
       className="text-center py-12"
     >
-      <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
-        <SafeIcon icon={FiAlertTriangle} className="text-red-500 text-4xl mb-4 mx-auto" />
-        <h3 className="text-xl font-semibold text-red-800 mb-2">
+      <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-8 max-w-md mx-auto shadow-soft hover:shadow-md transition-all">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+            <SafeIcon icon={FiAlertTriangle} className="text-red-500 text-7xl" />
+          </div>
+          <div className="relative z-10 bg-white/50 p-3 rounded-full w-16 h-16 flex items-center justify-center mx-auto backdrop-blur-sm">
+            <SafeIcon icon={FiAlertTriangle} className="text-red-500 text-3xl" />
+          </div>
+        </div>
+        
+        <h3 className="text-xl font-semibold text-red-800 mb-3">
           Errore di Connessione
         </h3>
-        <p className="text-red-600 mb-4">
+        
+        <p className="text-red-600 mb-6 bg-red-100/50 py-2 px-4 rounded-lg inline-block">
           {message}
         </p>
+        
         {onRetry && (
-          <button
+          <motion.button
             onClick={onRetry}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center mx-auto"
+            className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 rounded-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center mx-auto shadow-md hover:shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <SafeIcon icon={FiRefreshCw} className="mr-2" />
             Riprova
-          </button>
+          </motion.button>
         )}
       </div>
     </motion.div>
