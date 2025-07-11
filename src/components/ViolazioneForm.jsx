@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiX, FiSave, FiRotateCcw } = FiIcons;
+const { FiX, FiSave, FiRotateCcw, FiLoader } = FiIcons;
 
-const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
+const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null, isSubmitting = false }) => {
   const [formData, setFormData] = useState({
     articolo: '',
     comma: '',
@@ -40,7 +40,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
         categoria: violazione.categoria || '',
         descrizione: violazione.descrizione || '',
         pmr: violazione.pmr || '',
-        sanzioniAccessorie: violazione.sanzioniAccessorie || '',
+        sanzioniAccessorie: violazione.sanzioniAccessorie || violazione.sanzioni_accessorie || '',
         altro: violazione.altro || ''
       });
     } else {
@@ -62,10 +62,8 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
     if (formData.articolo && formData.descrizione && formData.pmr) {
       onSave({
         ...formData,
-        id: violazione ? violazione.id : Date.now(),
         pmr: formData.pmr.replace(/[^\d,]/g, '')
       });
-      onClose();
     }
   };
 
@@ -103,7 +101,8 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+            disabled={isSubmitting}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
           >
             <SafeIcon icon={FiX} className="text-xl" />
           </button>
@@ -125,7 +124,8 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                     <button
                       type="button"
                       onClick={handleCardFlip}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                      disabled={isSubmitting}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
                       title="Dettagli aggiuntivi"
                     >
                       <SafeIcon icon={FiRotateCcw} className="text-lg" />
@@ -146,6 +146,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                           onChange={(e) => handleInputChange('articolo', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           required
+                          disabled={isSubmitting}
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -159,6 +160,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                           value={formData.comma}
                           onChange={(e) => handleInputChange('comma', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={isSubmitting}
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -173,6 +175,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                           onChange={(e) => handleInputChange('pmr', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           required
+                          disabled={isSubmitting}
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -187,6 +190,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                         onChange={(e) => handleInputChange('categoria', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
+                        disabled={isSubmitting}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <option value="">Seleziona categoria...</option>
@@ -206,6 +210,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                         onChange={(e) => handleInputChange('descrizione', e.target.value)}
                         className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                         required
+                        disabled={isSubmitting}
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -222,7 +227,8 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                     <button
                       type="button"
                       onClick={handleCardFlip}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                      disabled={isSubmitting}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
                       title="Torna ai dati principali"
                     >
                       <SafeIcon icon={FiRotateCcw} className="text-lg" />
@@ -240,6 +246,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                         value={formData.sanzioniAccessorie}
                         onChange={(e) => handleInputChange('sanzioniAccessorie', e.target.value)}
                         className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        disabled={isSubmitting}
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -253,6 +260,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
                         value={formData.altro}
                         onChange={(e) => handleInputChange('altro', e.target.value)}
                         className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        disabled={isSubmitting}
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -266,16 +274,27 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione = null }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              disabled={isSubmitting}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
             >
               Annulla
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
             >
-              <SafeIcon icon={FiSave} className="mr-2" />
-              Salva
+              {isSubmitting ? (
+                <>
+                  <SafeIcon icon={FiLoader} className="mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <SafeIcon icon={FiSave} className="mr-2" />
+                  Salva
+                </>
+              )}
             </button>
           </div>
         </form>

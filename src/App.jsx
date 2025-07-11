@@ -6,15 +6,58 @@ import StatsBar from './components/StatsBar';
 import ActionButtons from './components/ActionButtons';
 import SanzioneCard from './components/SanzioneCard';
 import ViolazioneForm from './components/ViolazioneForm';
-import { sanzioni as initialSanzioni } from './data/sanzioni';
+import LoadingSpinner from './components/LoadingSpinner';
+import ErrorMessage from './components/ErrorMessage';
+import { useSanzioni } from './hooks/useSanzioni';
 import './App.css';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [sanzioni, setSanzioni] = useState(initialSanzioni);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingViolazione, setEditingViolazione] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { 
+    sanzioni, 
+    loading, 
+    error, 
+    saveSanzione, 
+    updateSanzione, 
+    deleteSanzione, 
+    refreshSanzioni 
+  } = useSanzioni();
+
+  // Funzione per ordinare anche i risultati filtrati
+  const sortSanzioni = (sanzioniArray) => {
+    return sanzioniArray.sort((a, b) => {
+      // Estrai il numero dell'articolo (rimuovi "Art. " e converti in numero)
+      const getArticoloNumber = (articolo) => {
+        const match = articolo.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+
+      // Estrai il numero del comma (converti in numero, se vuoto considera 0)
+      const getCommaNumber = (comma) => {
+        if (!comma) return 0;
+        const match = comma.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+
+      const articoloA = getArticoloNumber(a.articolo);
+      const articoloB = getArticoloNumber(b.articolo);
+
+      // Prima ordina per articolo
+      if (articoloA !== articoloB) {
+        return articoloA - articoloB;
+      }
+
+      // Se l'articolo è lo stesso, ordina per comma
+      const commaA = getCommaNumber(a.comma);
+      const commaB = getCommaNumber(b.comma);
+      return commaA - commaB;
+    });
+  };
 
   const filteredSanzioni = useMemo(() => {
     let filtered = sanzioni;
@@ -32,12 +75,13 @@ function App() {
         sanzione.articolo.toLowerCase().includes(term) ||
         sanzione.comma?.toLowerCase().includes(term) ||
         sanzione.categoria?.toLowerCase().includes(term) ||
-        sanzione.sanzioniAccessorie?.toLowerCase().includes(term) ||
+        sanzione.sanzioni_accessorie?.toLowerCase().includes(term) ||
         sanzione.altro?.toLowerCase().includes(term)
       );
     }
 
-    return filtered;
+    // Ordina anche i risultati filtrati
+    return sortSanzioni([...filtered]);
   }, [searchTerm, selectedCategory, sanzioni]);
 
   const handleClearSearch = () => {
@@ -55,21 +99,34 @@ function App() {
     setIsFormOpen(true);
   };
 
-  const handleSaveViolazione = (violazioneData) => {
-    if (editingViolazione) {
-      setSanzioni(prev => 
-        prev.map(s => s.id === editingViolazione.id ? violazioneData : s)
-      );
-    } else {
-      setSanzioni(prev => [...prev, violazioneData]);
+  const handleSaveViolazione = async (violazioneData) => {
+    try {
+      setIsSubmitting(true);
+      
+      if (editingViolazione) {
+        await updateSanzione(editingViolazione.id, violazioneData);
+      } else {
+        await saveSanzione(violazioneData);
+      }
+      
+      setIsFormOpen(false);
+      setEditingViolazione(null);
+    } catch (err) {
+      console.error('Error saving violazione:', err);
+      alert('Errore nel salvare la violazione. Riprova.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsFormOpen(false);
-    setEditingViolazione(null);
   };
 
-  const handleDeleteViolazione = (id) => {
+  const handleDeleteViolazione = async (id) => {
     if (window.confirm('Sei sicuro di voler eliminare questa violazione?')) {
-      setSanzioni(prev => prev.filter(s => s.id !== id));
+      try {
+        await deleteSanzione(id);
+      } catch (err) {
+        console.error('Error deleting violazione:', err);
+        alert('Errore nell\'eliminare la violazione. Riprova.');
+      }
     }
   };
 
@@ -77,6 +134,42 @@ function App() {
     setIsFormOpen(false);
     setEditingViolazione(null);
   };
+
+  // Converti i dati per compatibilità con i componenti esistenti
+  const convertedSanzioni = sanzioni.map(sanzione => ({
+    ...sanzione,
+    sanzioniAccessorie: sanzione.sanzioni_accessorie
+  }));
+
+  const convertedFiltered = filteredSanzioni.map(sanzione => ({
+    ...sanzione,
+    sanzioniAccessorie: sanzione.sanzioni_accessorie
+  }));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <LoadingSpinner />
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <ErrorMessage 
+            message={error} 
+            onRetry={refreshSanzioni}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,15 +185,15 @@ function App() {
         />
 
         <StatsBar
-          totalSanzioni={sanzioni.length}
-          filteredSanzioni={filteredSanzioni.length}
+          totalSanzioni={convertedSanzioni.length}
+          filteredSanzioni={convertedFiltered.length}
           searchTerm={searchTerm}
           selectedCategory={selectedCategory}
         />
 
         <ActionButtons onAddViolazione={handleAddViolazione} />
 
-        {filteredSanzioni.length === 0 ? (
+        {convertedFiltered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -109,15 +202,15 @@ function App() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-md mx-auto">
               <div className="text-gray-400 text-6xl mb-4">📋</div>
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                {sanzioni.length === 0 ? 'Nessuna violazione presente' : 'Nessun risultato trovato'}
+                {convertedSanzioni.length === 0 ? 'Nessuna violazione presente' : 'Nessun risultato trovato'}
               </h3>
               <p className="text-gray-500 mb-4">
-                {sanzioni.length === 0 
+                {convertedSanzioni.length === 0 
                   ? 'Inizia aggiungendo la prima violazione' 
                   : 'Prova a modificare i termini di ricerca o i filtri'
                 }
               </p>
-              {sanzioni.length === 0 ? (
+              {convertedSanzioni.length === 0 ? (
                 <button
                   onClick={handleAddViolazione}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -141,7 +234,7 @@ function App() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {filteredSanzioni.map((sanzione, index) => (
+            {convertedFiltered.map((sanzione, index) => (
               <SanzioneCard
                 key={sanzione.id}
                 sanzione={sanzione}
@@ -167,6 +260,7 @@ function App() {
         onClose={handleCloseForm}
         onSave={handleSaveViolazione}
         violazione={editingViolazione}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
