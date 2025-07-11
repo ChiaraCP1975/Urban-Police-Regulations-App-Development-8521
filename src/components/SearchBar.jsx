@@ -5,6 +5,7 @@ import * as FiIcons from 'react-icons/fi';
 const { FiSearch, FiFilter, FiX } = FiIcons;
 
 const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, onClear }) => {
+  // Elenco categorie standardizzato per tutto l'applicativo
   const categorie = [
     { value: 'Tutte', label: 'Tutte le categorie', color: 'gray' },
     { value: 'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'', label: 'Sicurezza Urbana', color: 'red' },
@@ -12,12 +13,12 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
     { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
     { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Decoro', color: 'teal' },
     { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica', color: 'purple' },
-    { value: 'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri e Attività', color: 'orange' },
+    { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri e Attività', color: 'orange' },
     { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza Ambientale', color: 'amber' },
-    { value: 'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI', label: 'Mantenimento Terreni', color: 'lime' },
+    { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni', color: 'lime' },
     { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione Acque', color: 'cyan' },
     { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Bestiame', color: 'green' },
-    { value: 'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI', label: 'Rispetto dei Beni', color: 'indigo' }
+    { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni', color: 'indigo' }
   ];
 
   const getOptionColor = (color) => {
@@ -45,7 +46,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
         <div className="relative flex-1 group">
           <SafeIcon 
             icon={FiSearch} 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl group-hover:text-blue-500 transition-colors" 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl group-hover:text-blue-500 transition-colors"
           />
           <input
             type="text"
@@ -68,7 +69,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
         <div className="relative lg:w-80 group">
           <SafeIcon 
             icon={FiFilter} 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg group-hover:text-blue-500 transition-colors" 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg group-hover:text-blue-500 transition-colors"
           />
           <select
             value={selectedCategory}
@@ -76,8 +77,8 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
             className="w-full appearance-none pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700 bg-white shadow-soft hover:shadow-md cursor-pointer"
           >
             {categorie.map(categoria => (
-              <option 
-                key={categoria.value} 
+              <option
+                key={categoria.value}
                 value={categoria.value === 'Tutte' ? '' : categoria.value}
                 className={getOptionColor(categoria.color)}
               >

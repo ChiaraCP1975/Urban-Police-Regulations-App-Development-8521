@@ -11,29 +11,46 @@ const StatsBar = ({ totalSanzioni, filteredSanzioni, searchTerm, selectedCategor
     return category.substring(0, maxLength) + '...';
   };
 
-  // Funzione per ottenere il colore della categoria
+  // Funzione standardizzata per ottenere il colore della categoria
   const getCategoryColor = (categoria) => {
     if (!categoria) return 'gray';
     
     const categoryColors = {
-      'SICUREZZA URBANA E PUBBLICA INCOLUMITA': 'red',
+      'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'': 'red',
       'CONVIVENZA CIVILE': 'emerald',
-      'VIVIBILITA': 'blue',
+      'VIVIBILITA\'': 'blue',
       'IGIENE E PUBBLICO DECORO': 'teal',
-      'QUIETE PUBBLICA E TRANQUILLITA': 'purple',
-      'MESTIERI,ATTIVITA': 'orange',
-      'SICUREZZA E DEGRADO AMBIENTALE': 'amber',
-      'MANTENIMENTO DI TERRENI': 'lime',
-      'GESTIONE DELLE ACQUE': 'cyan',
-      'PASCOLO E CONDUZIONE': 'green',
-      'RISPETTO DEI BENI': 'indigo'
+      'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE': 'purple',
+      'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange',
+      'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange', // Variante senza spazio
+      'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE': 'amber',
+      'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI': 'lime',
+      'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'lime', // Variante senza spazi
+      'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE': 'cyan',
+      'PASCOLO E CONDUZIONE DI BESTIAME': 'green',
+      'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI': 'indigo',
+      'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'indigo' // Variante senza spazi
     };
 
-    const matchingKey = Object.keys(categoryColors).find(key => 
-      categoria.includes(key)
-    );
+    // Cerca prima una corrispondenza esatta
+    if (categoryColors[categoria]) {
+      return categoryColors[categoria];
+    }
+
+    // Se non trova corrispondenza esatta, cerca per parole chiave
+    const normalizedCategory = categoria.toLowerCase();
     
-    return matchingKey ? categoryColors[matchingKey] : 'gray';
+    if (normalizedCategory.includes('mestieri') || normalizedCategory.includes('attivita') || normalizedCategory.includes('lavorative')) {
+      return 'orange';
+    }
+    if (normalizedCategory.includes('mantenimento') || normalizedCategory.includes('terreni') || normalizedCategory.includes('fossi')) {
+      return 'lime';
+    }
+    if (normalizedCategory.includes('rispetto') || normalizedCategory.includes('beni')) {
+      return 'indigo';
+    }
+
+    return 'gray';
   };
 
   const getCategoryBadgeClasses = (color) => {
@@ -80,7 +97,6 @@ const StatsBar = ({ totalSanzioni, filteredSanzioni, searchTerm, selectedCategor
             </div>
           )}
         </div>
-
         <div className="flex items-center space-x-2 flex-wrap gap-2">
           {searchTerm && (
             <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 transition-all hover:bg-blue-100">

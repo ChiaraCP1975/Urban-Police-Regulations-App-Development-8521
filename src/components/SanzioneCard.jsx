@@ -13,42 +13,74 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
     return `€ ${pmr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 
-  // Funzione per accorciare il testo
-  const truncateText = (text, maxLength = 80) => {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  // Determina il colore di sfondo in base alla categoria con colori più distintivi
+  // Funzione standardizzata per ottenere il colore della categoria
   const getCategoryColor = (categoria) => {
     if (!categoria) return 'slate';
     
     const categoryColors = {
-      'SICUREZZA URBANA E PUBBLICA INCOLUMITA': 'red',
+      'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'': 'red',
       'CONVIVENZA CIVILE': 'emerald',
-      'VIVIBILITA': 'blue',
+      'VIVIBILITA\'': 'blue',
       'IGIENE E PUBBLICO DECORO': 'teal',
-      'QUIETE PUBBLICA E TRANQUILLITA': 'purple',
-      'MESTIERI,ATTIVITA': 'orange',
-      'SICUREZZA E DEGRADO AMBIENTALE': 'amber',
-      'MANTENIMENTO DI TERRENI': 'lime',
-      'GESTIONE DELLE ACQUE': 'cyan',
-      'PASCOLO E CONDUZIONE': 'green',
-      'RISPETTO DEI BENI': 'indigo'
+      'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE': 'purple',
+      'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange',
+      'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange', // Variante senza spazio
+      'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE': 'amber',
+      'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI': 'lime',
+      'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'lime', // Variante senza spazi
+      'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE': 'cyan',
+      'PASCOLO E CONDUZIONE DI BESTIAME': 'green',
+      'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI': 'indigo',
+      'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'indigo' // Variante senza spazi
     };
 
-    // Trova la chiave che meglio corrisponde alla categoria
-    const matchingKey = Object.keys(categoryColors).find(key => 
-      categoria.includes(key)
-    );
+    // Cerca prima una corrispondenza esatta
+    if (categoryColors[categoria]) {
+      return categoryColors[categoria];
+    }
+
+    // Se non trova corrispondenza esatta, cerca per parole chiave
+    const normalizedCategory = categoria.toLowerCase();
     
-    return matchingKey ? categoryColors[matchingKey] : 'slate';
+    if (normalizedCategory.includes('mestieri') || normalizedCategory.includes('attivita') || normalizedCategory.includes('lavorative')) {
+      return 'orange';
+    }
+    if (normalizedCategory.includes('mantenimento') || normalizedCategory.includes('terreni') || normalizedCategory.includes('fossi')) {
+      return 'lime';
+    }
+    if (normalizedCategory.includes('rispetto') || normalizedCategory.includes('beni')) {
+      return 'indigo';
+    }
+    if (normalizedCategory.includes('sicurezza') && normalizedCategory.includes('urbana')) {
+      return 'red';
+    }
+    if (normalizedCategory.includes('convivenza')) {
+      return 'emerald';
+    }
+    if (normalizedCategory.includes('vivibilita')) {
+      return 'blue';
+    }
+    if (normalizedCategory.includes('igiene') || normalizedCategory.includes('decoro')) {
+      return 'teal';
+    }
+    if (normalizedCategory.includes('quiete') || normalizedCategory.includes('tranquillita')) {
+      return 'purple';
+    }
+    if (normalizedCategory.includes('ambientale') || normalizedCategory.includes('rurale')) {
+      return 'amber';
+    }
+    if (normalizedCategory.includes('acque') || normalizedCategory.includes('piovane')) {
+      return 'cyan';
+    }
+    if (normalizedCategory.includes('pascolo') || normalizedCategory.includes('bestiame')) {
+      return 'green';
+    }
+
+    return 'slate';
   };
 
   const categoryColor = getCategoryColor(sanzione.categoria);
 
-  // Mappa estesa dei colori con più varietà e contrasto
   const colorMap = {
     'red': {
       bg: 'bg-red-50',
@@ -143,7 +175,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="relative w-full h-72 perspective-1000"
+      className="relative w-full h-80 perspective-1000"
     >
       <motion.div
         className="relative w-full h-full cursor-pointer preserve-3d"
@@ -155,7 +187,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
         <div className={`absolute inset-0 w-full h-full backface-hidden bg-white rounded-xl shadow-soft border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden`}>
           <div className="p-5 h-full flex flex-col">
             {/* Header con articolo e comma */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-3">
               <div className="flex items-center space-x-3">
                 <div className="bg-gray-100 px-3 py-1.5 rounded-lg shadow-inner">
                   <span className="text-sm font-semibold text-gray-700">
@@ -177,24 +209,26 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
 
             {/* Categoria con colori distintivi */}
             {sanzione.categoria && (
-              <div className="mb-4">
+              <div className="mb-3 flex-shrink-0">
                 <div className={`${categoryClasses.bg} px-3 py-2 rounded-lg border-l-4 ${categoryClasses.border} transition-all hover:shadow-md`}>
-                  <div className={`inline-block px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${categoryClasses.badge} border`}>
-                    {truncateText(sanzione.categoria, 45)}
+                  <div className={`inline-block px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${categoryClasses.badge} border leading-relaxed`}>
+                    {sanzione.categoria}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Descrizione */}
-            <div className="flex-1 mb-4 overflow-hidden">
-              <h3 className="text-base font-semibold text-gray-800 leading-tight mb-2">
-                {truncateText(sanzione.descrizione, 120)}
-              </h3>
+            {/* Descrizione con scrollbar */}
+            <div className="flex-1 mb-3 min-h-0">
+              <div className="h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+                <h3 className="text-sm font-semibold text-gray-800 leading-relaxed">
+                  {sanzione.descrizione}
+                </h3>
+              </div>
             </div>
 
             {/* Footer con azioni e prezzo */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 flex-shrink-0">
               <div className="flex space-x-2">
                 <button
                   onClick={(e) => {
@@ -262,7 +296,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
             )}
 
             {/* Contenuto dettagliato */}
-            <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-1">
+            <div className="flex-1 space-y-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 pr-2">
               {/* PMR */}
               <div className="bg-green-50 px-4 py-3 rounded-lg shadow-inner border border-green-200">
                 <div className="flex justify-between items-center">
