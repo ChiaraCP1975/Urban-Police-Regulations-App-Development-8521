@@ -19,48 +19,48 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar styles */
+/* Custom scrollbar styles coordinated with card colors */
 .scrollbar-thin {
   scrollbar-width: thin;
 }
 
-.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+.scrollbar-thumb-blue-500::-webkit-scrollbar-thumb {
+  background-color: #3b82f6;
   border-radius: 4px;
 }
 
-.scrollbar-track-gray-100::-webkit-scrollbar-track {
-  background-color: #f3f4f6;
+.scrollbar-track-blue-200::-webkit-scrollbar-track {
+  background-color: #bfdbfe;
 }
 
-.hover\:scrollbar-thumb-gray-400:hover::-webkit-scrollbar-thumb {
-  background-color: #9ca3af;
+.hover\:scrollbar-thumb-blue-600:hover::-webkit-scrollbar-thumb {
+  background-color: #2563eb;
 }
 
-/* Webkit scrollbar styling */
+/* Webkit scrollbar styling coordinated with blue gradient */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: #bfdbfe;
   border-radius: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #3b82f6;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #2563eb;
 }
 
 /* Firefox scrollbar styling */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f3f4f6;
+  scrollbar-color: #3b82f6 #bfdbfe;
 }
 
 /* Default scrollbar fallback */
@@ -146,6 +146,17 @@ html {
 /* Soft shadows */
 .shadow-soft {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
+
+/* Enhanced glassmorphism for cards */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Custom blue gradient utilities */
+.bg-blue-25 {
+  background-color: #f8fafc;
 }
 
 /* Responsive design improvements */
