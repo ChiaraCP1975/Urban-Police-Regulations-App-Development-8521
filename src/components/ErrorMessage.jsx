@@ -3,9 +3,34 @@ import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiAlertTriangle, FiRefreshCw } = FiIcons;
+const { FiAlertTriangle, FiRefreshCw, FiDatabase, FiWifi } = FiIcons;
 
 const ErrorMessage = ({ message, onRetry }) => {
+  // Determina il tipo di errore per mostrare un messaggio più specifico
+  const isConnectionError = message && (
+    message.toLowerCase().includes('connessione') ||
+    message.toLowerCase().includes('connection') ||
+    message.toLowerCase().includes('network')
+  );
+  
+  const isDatabaseError = message && (
+    message.toLowerCase().includes('database') ||
+    message.toLowerCase().includes('supabase') ||
+    message.toLowerCase().includes('query')
+  );
+
+  const getErrorIcon = () => {
+    if (isConnectionError) return FiWifi;
+    if (isDatabaseError) return FiDatabase;
+    return FiAlertTriangle;
+  };
+
+  const getErrorTitle = () => {
+    if (isConnectionError) return 'Errore di Connessione';
+    if (isDatabaseError) return 'Errore del Database';
+    return 'Errore';
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -15,21 +40,48 @@ const ErrorMessage = ({ message, onRetry }) => {
       <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-8 max-w-md mx-auto shadow-soft hover:shadow-md transition-all">
         <div className="relative mb-6">
           <div className="absolute inset-0 flex items-center justify-center opacity-10">
-            <SafeIcon icon={FiAlertTriangle} className="text-red-500 text-7xl" />
+            <SafeIcon icon={getErrorIcon()} className="text-red-500 text-7xl" />
           </div>
           <div className="relative z-10 bg-white/50 p-3 rounded-full w-16 h-16 flex items-center justify-center mx-auto backdrop-blur-sm">
-            <SafeIcon icon={FiAlertTriangle} className="text-red-500 text-3xl" />
+            <SafeIcon icon={getErrorIcon()} className="text-red-500 text-3xl" />
           </div>
         </div>
         
         <h3 className="text-xl font-semibold text-red-800 mb-3">
-          Errore di Connessione
+          {getErrorTitle()}
         </h3>
         
-        <p className="text-red-600 mb-6 bg-red-100/50 py-2 px-4 rounded-lg inline-block">
+        <p className="text-red-600 mb-4 bg-red-100/50 py-2 px-4 rounded-lg inline-block">
           {message}
         </p>
         
+        <div className="bg-white/50 p-4 rounded-lg mb-6 text-left">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">Possibili soluzioni:</h4>
+          <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+            {isConnectionError && (
+              <>
+                <li>Verifica la tua connessione a Internet</li>
+                <li>Controlla che il server Supabase sia attivo</li>
+                <li>Verifica che le credenziali di accesso siano corrette</li>
+              </>
+            )}
+            {isDatabaseError && (
+              <>
+                <li>Verifica che la tabella 'sanzioni_violations' esista nel database</li>
+                <li>Controlla che le credenziali abbiano i permessi necessari</li>
+                <li>Assicurati che la struttura della tabella sia corretta</li>
+              </>
+            )}
+            {!isConnectionError && !isDatabaseError && (
+              <>
+                <li>Ricarica la pagina e riprova</li>
+                <li>Verifica la tua connessione a Internet</li>
+                <li>Controlla la console per ulteriori dettagli</li>
+              </>
+            )}
+          </ul>
+        </div>
+
         {onRetry && (
           <motion.button
             onClick={onRetry}

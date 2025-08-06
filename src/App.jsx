@@ -8,6 +8,7 @@ import SanzioneCard from './components/SanzioneCard';
 import ViolazioneForm from './components/ViolazioneForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
+import NetworkStatus from './components/NetworkStatus';
 import { useSanzioni } from './hooks/useSanzioni';
 import './App.css';
 
@@ -22,6 +23,7 @@ function App() {
     sanzioni, 
     loading, 
     error, 
+    connected,
     saveSanzione, 
     updateSanzione, 
     deleteSanzione, 
@@ -30,9 +32,14 @@ function App() {
 
   // Funzione per ordinare anche i risultati filtrati
   const sortSanzioni = (sanzioniArray) => {
+    if (!Array.isArray(sanzioniArray) || sanzioniArray.length === 0) {
+      return [];
+    }
+    
     return sanzioniArray.sort((a, b) => {
       // Estrai il numero dell'articolo (rimuovi "Art. " e converti in numero)
       const getArticoloNumber = (articolo) => {
+        if (!articolo) return 0;
         const match = articolo.match(/(\d+)/);
         return match ? parseInt(match[1]) : 0;
       };
@@ -71,12 +78,12 @@ function App() {
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(sanzione => 
-        sanzione.descrizione.toLowerCase().includes(term) ||
-        sanzione.articolo.toLowerCase().includes(term) ||
-        sanzione.comma?.toLowerCase().includes(term) ||
-        sanzione.categoria?.toLowerCase().includes(term) ||
-        sanzione.sanzioni_accessorie?.toLowerCase().includes(term) ||
-        sanzione.altro?.toLowerCase().includes(term)
+        (sanzione.descrizione || '').toLowerCase().includes(term) ||
+        (sanzione.articolo || '').toLowerCase().includes(term) ||
+        (sanzione.comma || '').toLowerCase().includes(term) ||
+        (sanzione.categoria || '').toLowerCase().includes(term) ||
+        (sanzione.sanzioni_accessorie || '').toLowerCase().includes(term) ||
+        (sanzione.altro || '').toLowerCase().includes(term)
       );
     }
 
@@ -146,18 +153,19 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-100">
         <Header />
         <main className="max-w-6xl mx-auto px-4 py-8">
           <LoadingSpinner />
         </main>
+        <NetworkStatus />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-100">
         <Header />
         <main className="max-w-6xl mx-auto px-4 py-8">
           <ErrorMessage 
@@ -165,6 +173,7 @@ function App() {
             onRetry={refreshSanzioni}
           />
         </main>
+        <NetworkStatus />
       </div>
     );
   }
@@ -273,6 +282,8 @@ function App() {
           />
         )}
       </AnimatePresence>
+      
+      <NetworkStatus />
     </div>
   );
 }
