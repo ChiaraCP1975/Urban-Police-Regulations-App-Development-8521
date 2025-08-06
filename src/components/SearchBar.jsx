@@ -1,42 +1,13 @@
 import React from 'react';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
+import { CATEGORIES_SEARCH, getTextColorClass } from '../utils/categoryUtils';
 
 const { FiSearch, FiFilter, FiX } = FiIcons;
 
 const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, onClear }) => {
-  // Elenco categorie standardizzato per tutto l'applicativo
-  const categorie = [
-    { value: 'Tutte', label: 'Tutte le categorie', color: 'gray' },
-    { value: 'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'', label: 'Sicurezza Urbana', color: 'red' },
-    { value: 'CONVIVENZA CIVILE', label: 'Convivenza Civile', color: 'emerald' },
-    { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
-    { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Decoro', color: 'teal' },
-    { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica', color: 'purple' },
-    { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri e Attività', color: 'orange' },
-    { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza Ambientale', color: 'amber' },
-    { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni', color: 'lime' },
-    { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione Acque', color: 'cyan' },
-    { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Bestiame', color: 'green' },
-    { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni', color: 'indigo' }
-  ];
-
   const getOptionColor = (color) => {
-    const colorMap = {
-      'red': 'text-red-700',
-      'emerald': 'text-emerald-700',
-      'blue': 'text-blue-700',
-      'teal': 'text-teal-700',
-      'purple': 'text-purple-700',
-      'orange': 'text-orange-700',
-      'amber': 'text-amber-700',
-      'lime': 'text-lime-700',
-      'cyan': 'text-cyan-700',
-      'green': 'text-green-700',
-      'indigo': 'text-indigo-700',
-      'gray': 'text-gray-700'
-    };
-    return colorMap[color] || 'text-gray-700';
+    return getTextColorClass(color);
   };
 
   return (
@@ -76,9 +47,9 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="w-full appearance-none pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700 bg-white shadow-soft hover:shadow-md cursor-pointer"
           >
-            {categorie.map(categoria => (
-              <option
-                key={categoria.value}
+            {CATEGORIES_SEARCH.map(categoria => (
+              <option 
+                key={categoria.value} 
                 value={categoria.value === 'Tutte' ? '' : categoria.value}
                 className={getOptionColor(categoria.color)}
               >

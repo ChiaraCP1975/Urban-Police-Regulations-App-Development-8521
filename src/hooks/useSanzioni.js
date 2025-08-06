@@ -15,7 +15,7 @@ export const useSanzioni = () => {
     if (!Array.isArray(sanzioniArray) || sanzioniArray.length === 0) {
       return [];
     }
-    
+
     return sanzioniArray.sort((a, b) => {
       // Estrai il numero dell'articolo (rimuovi "Art. " e converti in numero)
       const getArticoloNumber = (articolo) => {
@@ -52,14 +52,15 @@ export const useSanzioni = () => {
       console.log('Verifica esistenza tabella sanzioni_violations...');
       const { data, error } = await supabase
         .from('sanzioni_violations')
-        .select('count(*)', { count: 'exact', head: true });
-      
+        .select('count(*)', { count: 'exact', head: true })
+        .limit(1);
+
       if (error) {
         console.error('La tabella non esiste o non è accessibile:', error);
         setTableVerified(false);
         return false;
       }
-      
+
       console.log('Tabella verificata con successo');
       setTableVerified(true);
       return true;
@@ -82,14 +83,22 @@ export const useSanzioni = () => {
         setError(`Errore di connessione al database: ${result.error}`);
         return false;
       }
-      
+
+      // Se la tabella è stata appena creata, non è necessario verificarla di nuovo
+      if (result.tableCreated) {
+        setTableVerified(true);
+        setConnected(true);
+        setError(null);
+        return true;
+      }
+
       // Verifica anche l'esistenza della tabella
       const tableExists = await checkTableExists();
       if (!tableExists) {
         setError('La tabella delle sanzioni non esiste. È necessario crearla.');
         return false;
       }
-      
+
       setConnected(true);
       setError(null);
       return true;
@@ -163,17 +172,21 @@ export const useSanzioni = () => {
       }
 
       console.log('Salvataggio nuova sanzione:', sanzioneData);
+      
+      // Assicurati che i campi siano formattati correttamente
+      const formattedData = {
+        articolo: sanzioneData.articolo,
+        comma: sanzioneData.comma,
+        categoria: sanzioneData.categoria,
+        descrizione: sanzioneData.descrizione,
+        pmr: parseFloat(sanzioneData.pmr) || 0,
+        sanzioni_accessorie: sanzioneData.sanzioniAccessorie,
+        altro: sanzioneData.altro
+      };
+
       const { data, error } = await supabase
         .from('sanzioni_violations')
-        .insert([{
-          articolo: sanzioneData.articolo,
-          comma: sanzioneData.comma,
-          categoria: sanzioneData.categoria,
-          descrizione: sanzioneData.descrizione,
-          pmr: sanzioneData.pmr,
-          sanzioni_accessorie: sanzioneData.sanzioniAccessorie,
-          altro: sanzioneData.altro
-        }])
+        .insert([formattedData])
         .select();
 
       if (error) throw error;
@@ -203,18 +216,22 @@ export const useSanzioni = () => {
       }
 
       console.log(`Aggiornamento sanzione ID: ${id}`, sanzioneData);
+      
+      // Assicurati che i campi siano formattati correttamente
+      const formattedData = {
+        articolo: sanzioneData.articolo,
+        comma: sanzioneData.comma,
+        categoria: sanzioneData.categoria,
+        descrizione: sanzioneData.descrizione,
+        pmr: parseFloat(sanzioneData.pmr) || 0,
+        sanzioni_accessorie: sanzioneData.sanzioniAccessorie,
+        altro: sanzioneData.altro,
+        updated_at: new Date().toISOString()
+      };
+
       const { data, error } = await supabase
         .from('sanzioni_violations')
-        .update({
-          articolo: sanzioneData.articolo,
-          comma: sanzioneData.comma,
-          categoria: sanzioneData.categoria,
-          descrizione: sanzioneData.descrizione,
-          pmr: sanzioneData.pmr,
-          sanzioni_accessorie: sanzioneData.sanzioniAccessorie,
-          altro: sanzioneData.altro,
-          updated_at: new Date().toISOString()
-        })
+        .update(formattedData)
         .eq('id', id)
         .select();
 
@@ -266,24 +283,28 @@ export const useSanzioni = () => {
   useEffect(() => {
     // Verifica che la tabella esista prima di caricare i dati
     const init = async () => {
-      const tableExists = await checkTableExists();
-      if (tableExists) {
-        loadSanzioni();
+      try {
+        const isConnected = await checkConnection();
+        if (isConnected) {
+          await loadSanzioni();
+        }
+      } catch (err) {
+        console.error('Errore durante l\'inizializzazione:', err);
       }
     };
-    
+
     init();
-    
+
     // Cleanup function
     return () => {
       console.log('Pulizia hook useSanzioni');
     };
-  }, [loadSanzioni, checkTableExists]);
+  }, [loadSanzioni]);
 
   // Setup realtime subscription
   useEffect(() => {
     if (!connected || !tableVerified) return;
-    
+
     console.log('Configurazione sottoscrizione realtime...');
     const channel = supabase
       .channel('sanzioni_changes')

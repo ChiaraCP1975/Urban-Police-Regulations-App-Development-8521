@@ -8,14 +8,14 @@ const { FiAlertTriangle, FiRefreshCw, FiDatabase, FiWifi } = FiIcons;
 const ErrorMessage = ({ message, onRetry }) => {
   // Determina il tipo di errore per mostrare un messaggio più specifico
   const isConnectionError = message && (
-    message.toLowerCase().includes('connessione') ||
-    message.toLowerCase().includes('connection') ||
+    message.toLowerCase().includes('connessione') || 
+    message.toLowerCase().includes('connection') || 
     message.toLowerCase().includes('network')
   );
-  
+
   const isDatabaseError = message && (
-    message.toLowerCase().includes('database') ||
-    message.toLowerCase().includes('supabase') ||
+    message.toLowerCase().includes('database') || 
+    message.toLowerCase().includes('supabase') || 
     message.toLowerCase().includes('query')
   );
 
@@ -46,7 +46,7 @@ const ErrorMessage = ({ message, onRetry }) => {
             <SafeIcon icon={getErrorIcon()} className="text-red-500 text-3xl" />
           </div>
         </div>
-        
+
         <h3 className="text-xl font-semibold text-red-800 mb-3">
           {getErrorTitle()}
         </h3>
@@ -54,7 +54,7 @@ const ErrorMessage = ({ message, onRetry }) => {
         <p className="text-red-600 mb-4 bg-red-100/50 py-2 px-4 rounded-lg inline-block">
           {message}
         </p>
-        
+
         <div className="bg-white/50 p-4 rounded-lg mb-6 text-left">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Possibili soluzioni:</h4>
           <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">

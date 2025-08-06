@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
+import { getCategoryColor } from '../utils/categoryUtils';
 
 const { FiRotateCcw, FiEdit2, FiTrash2 } = FiIcons;
 
@@ -13,74 +14,9 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
     return `€ ${pmr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 
-  // Funzione standardizzata per ottenere il colore della categoria
-  const getCategoryColor = (categoria) => {
-    if (!categoria) return 'slate';
-    
-    const categoryColors = {
-      'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'': 'red',
-      'CONVIVENZA CIVILE': 'emerald',
-      'VIVIBILITA\'': 'blue',
-      'IGIENE E PUBBLICO DECORO': 'teal',
-      'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE': 'purple',
-      'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange',
-      'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange', // Variante senza spazio
-      'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE': 'amber',
-      'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI': 'lime',
-      'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'lime', // Variante senza spazi
-      'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE': 'cyan',
-      'PASCOLO E CONDUZIONE DI BESTIAME': 'green',
-      'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI': 'indigo',
-      'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'indigo' // Variante senza spazi
-    };
-
-    // Cerca prima una corrispondenza esatta
-    if (categoryColors[categoria]) {
-      return categoryColors[categoria];
-    }
-
-    // Se non trova corrispondenza esatta, cerca per parole chiave
-    const normalizedCategory = categoria.toLowerCase();
-    
-    if (normalizedCategory.includes('mestieri') || normalizedCategory.includes('attivita') || normalizedCategory.includes('lavorative')) {
-      return 'orange';
-    }
-    if (normalizedCategory.includes('mantenimento') || normalizedCategory.includes('terreni') || normalizedCategory.includes('fossi')) {
-      return 'lime';
-    }
-    if (normalizedCategory.includes('rispetto') || normalizedCategory.includes('beni')) {
-      return 'indigo';
-    }
-    if (normalizedCategory.includes('sicurezza') && normalizedCategory.includes('urbana')) {
-      return 'red';
-    }
-    if (normalizedCategory.includes('convivenza')) {
-      return 'emerald';
-    }
-    if (normalizedCategory.includes('vivibilita')) {
-      return 'blue';
-    }
-    if (normalizedCategory.includes('igiene') || normalizedCategory.includes('decoro')) {
-      return 'teal';
-    }
-    if (normalizedCategory.includes('quiete') || normalizedCategory.includes('tranquillita')) {
-      return 'purple';
-    }
-    if (normalizedCategory.includes('ambientale') || normalizedCategory.includes('rurale')) {
-      return 'amber';
-    }
-    if (normalizedCategory.includes('acque') || normalizedCategory.includes('piovane')) {
-      return 'cyan';
-    }
-    if (normalizedCategory.includes('pascolo') || normalizedCategory.includes('bestiame')) {
-      return 'green';
-    }
-
-    return 'slate';
-  };
-
+  // Ottieni il colore della categoria
   const categoryColor = getCategoryColor(sanzione.categoria);
-
+  
   const colorMap = {
     'red': {
       bg: 'bg-red-50',
@@ -194,6 +130,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                     {sanzione.articolo}
                   </span>
                 </div>
+                
                 {sanzione.comma && (
                   <div className="bg-white/60 backdrop-blur-sm px-2 py-1 rounded-lg shadow-inner border border-blue-200">
                     <span className="text-xs text-gray-600">
@@ -202,11 +139,12 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   </div>
                 )}
               </div>
+              
               <div className="bg-white/60 backdrop-blur-sm p-1.5 rounded-full hover:bg-white/80 transition-colors border border-blue-300">
                 <SafeIcon icon={FiRotateCcw} className="text-blue-600 text-lg" />
               </div>
             </div>
-
+            
             {/* Categoria con colori distintivi */}
             {sanzione.categoria && (
               <div className="mb-3 flex-shrink-0">
@@ -217,7 +155,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                 </div>
               </div>
             )}
-
+            
             {/* Descrizione con scrollbar */}
             <div className="flex-1 mb-3 min-h-0">
               <div className="h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-200 hover:scrollbar-thumb-blue-600">
@@ -226,7 +164,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                 </h3>
               </div>
             </div>
-
+            
             {/* Footer con azioni e prezzo */}
             <div className="flex items-center justify-between pt-3 border-t border-blue-300 flex-shrink-0">
               <div className="flex space-x-2">
@@ -240,6 +178,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                 >
                   <SafeIcon icon={FiEdit2} className="text-sm" />
                 </button>
+                
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -251,6 +190,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   <SafeIcon icon={FiTrash2} className="text-sm" />
                 </button>
               </div>
+              
               <div className="bg-gradient-to-r from-green-200 to-emerald-200 backdrop-blur-sm px-3 py-2 rounded-lg shadow-inner border border-green-300">
                 <span className="text-lg font-bold text-green-800">
                   {formatPMR(sanzione.pmr)}
@@ -259,7 +199,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
             </div>
           </div>
         </div>
-
+        
         {/* Retro della carta - Sfondo più scuro */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-sky-200 via-blue-100 to-cyan-200 rounded-xl shadow-soft border border-blue-300 overflow-hidden backdrop-blur-sm">
           <div className="p-5 h-full flex flex-col">
@@ -271,6 +211,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                     {sanzione.articolo}
                   </span>
                 </div>
+                
                 {sanzione.comma && (
                   <div className="bg-white/60 backdrop-blur-sm px-2 py-1 rounded-lg shadow-inner border border-blue-200">
                     <span className="text-xs text-gray-600">
@@ -279,11 +220,12 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   </div>
                 )}
               </div>
+              
               <div className="bg-white/60 backdrop-blur-sm p-1.5 rounded-full hover:bg-white/80 transition-colors border border-blue-300">
                 <SafeIcon icon={FiRotateCcw} className="text-blue-600 text-lg" />
               </div>
             </div>
-
+            
             {/* Categoria completa con colori distintivi */}
             {sanzione.categoria && (
               <div className="mb-4">
@@ -294,7 +236,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                 </div>
               </div>
             )}
-
+            
             {/* Contenuto dettagliato */}
             <div className="flex-1 space-y-3 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-200 hover:scrollbar-thumb-blue-600 pr-2">
               {/* PMR */}
@@ -306,7 +248,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   </span>
                 </div>
               </div>
-
+              
               {/* Sanzioni Accessorie */}
               {sanzione.sanzioniAccessorie && (
                 <div className="bg-gradient-to-r from-orange-200/90 to-amber-200/90 backdrop-blur-sm px-4 py-3 rounded-lg shadow-inner border border-orange-300">
@@ -316,7 +258,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   </p>
                 </div>
               )}
-
+              
               {/* Altro */}
               {sanzione.altro && (
                 <div className="bg-gradient-to-r from-gray-200/90 to-slate-200/90 backdrop-blur-sm px-4 py-3 rounded-lg shadow-inner border border-gray-300">
@@ -326,7 +268,7 @@ const SanzioneCard = ({ sanzione, index, onEdit, onDelete }) => {
                   </p>
                 </div>
               )}
-
+              
               {/* Descrizione completa con colori categoria */}
               <div className={`${categoryClasses.bg}/90 backdrop-blur-sm px-4 py-3 rounded-lg shadow-inner border border-white/30`}>
                 <h4 className={`text-sm font-semibold ${categoryClasses.text} mb-2`}>Descrizione Completa</h4>

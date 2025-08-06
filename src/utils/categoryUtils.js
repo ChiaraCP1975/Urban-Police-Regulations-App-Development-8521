@@ -9,15 +9,12 @@ export const CATEGORY_MAP = {
   'VIVIBILITA\'': 'blue',
   'IGIENE E PUBBLICO DECORO': 'teal',
   'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE': 'purple',
-  'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange',
-  'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange', // Variante senza spazi
+  'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'orange',
   'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE': 'amber',
-  'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI': 'lime',
-  'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'lime', // Variante senza spazi
+  'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'lime',
   'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE': 'cyan',
   'PASCOLO E CONDUZIONE DI BESTIAME': 'green',
-  'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI': 'indigo',
-  'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'indigo' // Variante senza spazi
+  'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'indigo'
 };
 
 // Elenco categorie formattato per select
@@ -27,12 +24,12 @@ export const CATEGORIES = [
   { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
   { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Pubblico Decoro', color: 'teal' },
   { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica e Tranquillità', color: 'purple' },
-  { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri, Attività Lavorative e Manifestazioni', color: 'orange' },
+  { value: 'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri, Attività Lavorative e Manifestazioni', color: 'orange' },
   { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza e Degrado Ambientale Rurale', color: 'amber' },
-  { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni, Fossi, Alberi e Piante', color: 'lime' },
+  { value: 'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI', label: 'Mantenimento Terreni, Fossi, Alberi e Piante', color: 'lime' },
   { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione delle Acque Piovane ed Irrigue', color: 'cyan' },
   { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Conduzione di Bestiame', color: 'green' },
-  { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni Privati, Comunali, Demaniali', color: 'indigo' }
+  { value: 'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI', label: 'Rispetto dei Beni Privati, Comunali, Demaniali', color: 'indigo' }
 ];
 
 // Versione con etichette abbreviate per il menu di ricerca
@@ -43,12 +40,12 @@ export const CATEGORIES_SEARCH = [
   { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
   { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Decoro', color: 'teal' },
   { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica', color: 'purple' },
-  { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri e Attività', color: 'orange' },
+  { value: 'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri e Attività', color: 'orange' },
   { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza Ambientale', color: 'amber' },
-  { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni', color: 'lime' },
+  { value: 'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI', label: 'Mantenimento Terreni', color: 'lime' },
   { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione Acque', color: 'cyan' },
   { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Bestiame', color: 'green' },
-  { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni', color: 'indigo' }
+  { value: 'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI', label: 'Rispetto dei Beni', color: 'indigo' }
 ];
 
 /**
@@ -125,6 +122,7 @@ export const getCategoryBadgeClasses = (color) => {
     'slate': 'bg-slate-100 text-slate-700 border-slate-300',
     'gray': 'bg-gray-100 text-gray-700 border-gray-300'
   };
+  
   return colorMap[color] || 'bg-gray-100 text-gray-700 border-gray-300';
 };
 
@@ -149,5 +147,6 @@ export const getTextColorClass = (color) => {
     'gray': 'text-gray-700',
     'slate': 'text-slate-700'
   };
+  
   return colorMap[color] || 'text-gray-700';
 };

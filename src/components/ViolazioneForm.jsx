@@ -2,35 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
+import { CATEGORIES } from '../utils/categoryUtils';
 
 const { FiX, FiSave, FiAlertTriangle } = FiIcons;
 
 const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) => {
-  // Elenco categorie standardizzato per tutto l'applicativo
-  const categorie = [
-    { value: 'SICUREZZA URBANA E PUBBLICA INCOLUMITA\'', label: 'Sicurezza Urbana e Pubblica Incolumità', color: 'red' },
-    { value: 'CONVIVENZA CIVILE', label: 'Convivenza Civile', color: 'emerald' },
-    { value: 'VIVIBILITA\'', label: 'Vivibilità', color: 'blue' },
-    { value: 'IGIENE E PUBBLICO DECORO', label: 'Igiene e Pubblico Decoro', color: 'teal' },
-    { value: 'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE', label: 'Quiete Pubblica e Tranquillità', color: 'purple' },
-    { value: 'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI', label: 'Mestieri, Attività Lavorative e Manifestazioni', color: 'orange' },
-    { value: 'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE', label: 'Sicurezza e Degrado Ambientale Rurale', color: 'amber' },
-    { value: 'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI', label: 'Mantenimento Terreni, Fossi, Alberi e Piante', color: 'lime' },
-    { value: 'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE', label: 'Gestione delle Acque Piovane ed Irrigue', color: 'cyan' },
-    { value: 'PASCOLO E CONDUZIONE DI BESTIAME', label: 'Pascolo e Conduzione di Bestiame', color: 'green' },
-    { value: 'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI', label: 'Rispetto dei Beni Privati, Comunali, Demaniali', color: 'indigo' }
-  ];
-
   const [formData, setFormData] = useState({
     articolo: '',
     comma: '',
-    categoria: categorie[0].value,
+    categoria: CATEGORIES[0].value,
     descrizione: '',
     pmr: '',
     sanzioniAccessorie: '',
     altro: ''
   });
-
   const [errors, setErrors] = useState({});
 
   // Imposta i dati del form quando si sta modificando una violazione esistente
@@ -39,7 +24,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
       setFormData({
         articolo: violazione.articolo || '',
         comma: violazione.comma || '',
-        categoria: violazione.categoria || categorie[0].value,
+        categoria: violazione.categoria || CATEGORIES[0].value,
         descrizione: violazione.descrizione || '',
         pmr: violazione.pmr || '',
         sanzioniAccessorie: violazione.sanzioniAccessorie || violazione.sanzioni_accessorie || '',
@@ -50,7 +35,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
       setFormData({
         articolo: '',
         comma: '',
-        categoria: categorie[0].value,
+        categoria: CATEGORIES[0].value,
         descrizione: '',
         pmr: '',
         sanzioniAccessorie: '',
@@ -62,17 +47,11 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
     // Rimuovi l'errore quando l'utente modifica il campo
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
+      setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
@@ -117,12 +96,12 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
       'VIVIBILITA\'': 'text-blue-700',
       'IGIENE E PUBBLICO DECORO': 'text-teal-700',
       'QUIETE PUBBLICA E TRANQUILLITA\' DELLE PERSONE': 'text-purple-700',
-      'MESTIERI, ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'text-orange-700',
+      'MESTIERI,ATTIVITA\' LAVORATIVE E MANIFESTAZIONI': 'text-orange-700',
       'SICUREZZA E DEGRADO AMBIENTALE IN AMBITO RURALE': 'text-amber-700',
-      'MANTENIMENTO DI TERRENI, FOSSI, ALBERI, PIANTE E ARBUSTI': 'text-lime-700',
+      'MANTENIMENTO DI TERRENI,FOSSI,ALBERI,PIANTE E ARBUSTI': 'text-lime-700',
       'GESTIONE DELLE ACQUE PIOVANE ED IRRIGUE': 'text-cyan-700',
       'PASCOLO E CONDUZIONE DI BESTIAME': 'text-green-700',
-      'RISPETTO DEI BENI PRIVATI, COMUNALI, DEMANIALI': 'text-indigo-700'
+      'RISPETTO DEI BENI PRIVATI,COMUNALI,DEMANIALI': 'text-indigo-700'
     };
     
     return colorMap[categoria] || 'text-gray-700';
@@ -132,7 +111,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto">
-          <motion.div 
+          <motion.div
             className="bg-white rounded-2xl shadow-lg w-full max-w-3xl m-4 relative"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -144,7 +123,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                 {violazione ? 'Modifica Violazione' : 'Nuova Violazione'}
               </h2>
               <button 
-                onClick={onClose}
+                onClick={onClose} 
                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
                 disabled={isSubmitting}
               >
@@ -176,7 +155,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     </p>
                   )}
                 </div>
-
+                
                 {/* Comma */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -191,7 +170,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
-
+                
                 {/* Categoria */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -203,7 +182,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   >
-                    {categorie.map(cat => (
+                    {CATEGORIES.map(cat => (
                       <option 
                         key={cat.value} 
                         value={cat.value}
@@ -214,7 +193,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     ))}
                   </select>
                 </div>
-
+                
                 {/* Descrizione */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -237,7 +216,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     </p>
                   )}
                 </div>
-
+                
                 {/* PMR */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -268,13 +247,13 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                   )}
                 </div>
               </div>
-
+              
               {/* Campi aggiuntivi */}
               <div className="space-y-6 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-2">
                   Informazioni aggiuntive
                 </h3>
-
+                
                 {/* Sanzioni Accessorie */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -289,7 +268,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   ></textarea>
                 </div>
-
+                
                 {/* Altro */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -305,7 +284,7 @@ const ViolazioneForm = ({ isOpen, onClose, onSave, violazione, isSubmitting }) =
                   ></textarea>
                 </div>
               </div>
-
+              
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"

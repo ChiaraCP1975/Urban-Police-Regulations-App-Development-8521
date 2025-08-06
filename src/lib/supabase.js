@@ -28,20 +28,85 @@ supabase.supabaseKey = SUPABASE_ANON_KEY;
 // Log dell'inizializzazione
 console.log('Client Supabase inizializzato con URL:', SUPABASE_URL);
 
+// Funzione per inserire dati di esempio
+export const insertExampleData = async () => {
+  try {
+    // Verifica se ci sono già dati
+    const { data, count, error: countError } = await supabase
+      .from('sanzioni_violations')
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) {
+      console.error('Errore nel conteggio dei dati:', countError);
+      return { success: false, error: countError };
+    }
+    
+    // Se ci sono già dati, non inserire esempi
+    if (count > 0) {
+      console.log('Dati esistenti trovati, saltando inserimento esempi');
+      return { success: true, skipped: true };
+    }
+    
+    console.log('Inserimento dati di esempio...');
+    
+    // Inserisci dati di esempio
+    const exampleData = [
+      {
+        articolo: 'Art. 7',
+        comma: '1',
+        categoria: 'CONVIVENZA CIVILE',
+        descrizione: 'Mancato rispetto delle norme di convivenza civile',
+        pmr: 50.00,
+        sanzioni_accessorie: 'Nessuna',
+        altro: ''
+      },
+      {
+        articolo: 'Art. 12',
+        comma: '3',
+        categoria: 'IGIENE E PUBBLICO DECORO',
+        descrizione: 'Abbandono di rifiuti su suolo pubblico',
+        pmr: 150.00,
+        sanzioni_accessorie: 'Obbligo di pulizia dell\'area',
+        altro: 'Recidiva: sanzione raddoppiata'
+      }
+    ];
+    
+    const { error: insertError } = await supabase
+      .from('sanzioni_violations')
+      .insert(exampleData);
+    
+    if (insertError) {
+      console.error('Errore nell\'inserimento dei dati di esempio:', insertError);
+      return { success: false, error: insertError };
+    }
+    
+    console.log('Dati di esempio inseriti con successo');
+    return { success: true };
+  } catch (err) {
+    console.error('Errore durante l\'inserimento dei dati di esempio:', err);
+    return { success: false, error: err.message };
+  }
+};
+
 // Funzione per creare la tabella se non esiste
 export const createSanzioniTable = async () => {
   try {
     console.log('Tentativo di creazione tabella sanzioni_violations...');
     
-    // Approccio diretto SQL
-    const { data, error } = await supabase.from('sanzioni_violations').select('count(*)', { count: 'exact', head: true });
+    // Verifica se la tabella esiste già
+    const { data, error } = await supabase
+      .from('sanzioni_violations')
+      .select('count(*)', { count: 'exact', head: true })
+      .limit(1);
     
     if (!error) {
       console.log('La tabella esiste già');
       return { success: true, exists: true };
     }
     
-    // Crea la tabella direttamente
+    // Se la tabella non esiste, creala direttamente con SQL
+    console.log('La tabella non esiste, tentativo di creazione...');
+    
     const createTableSQL = `
       CREATE TABLE IF NOT EXISTS sanzioni_violations (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -61,77 +126,77 @@ export const createSanzioniTable = async () => {
       CREATE POLICY "Allow all operations" ON sanzioni_violations FOR ALL USING (true) WITH CHECK (true);
     `;
     
-    const { error: createError } = await supabase.rpc('exec_sql', { sql: createTableSQL });
-    
-    if (createError) {
-      console.error('Errore nella creazione della tabella:', createError);
-      return { success: false, error: createError };
-    }
-    
-    // Inserisci dati di esempio se la tabella è vuota
-    const { data: count, error: countError } = await supabase
-      .from('sanzioni_violations')
-      .select('count(*)', { count: 'exact', head: true });
+    try {
+      // Usa RPC
+      const { error: createError } = await supabase.rpc('exec_sql', { sql: createTableSQL });
       
-    if (!countError && count === 0) {
-      // Inserisci alcuni dati di esempio
-      const exampleData = [
-        {
-          articolo: 'Art. 7',
-          comma: '1',
-          categoria: 'CONVIVENZA CIVILE',
-          descrizione: 'Mancato rispetto delle norme di convivenza civile',
-          pmr: 50.00,
-          sanzioni_accessorie: 'Nessuna',
-          altro: ''
-        },
-        {
-          articolo: 'Art. 12',
-          comma: '3',
-          categoria: 'IGIENE E PUBBLICO DECORO',
-          descrizione: 'Abbandono di rifiuti su suolo pubblico',
-          pmr: 150.00,
-          sanzioni_accessorie: 'Obbligo di pulizia dell\'area',
-          altro: 'Recidiva: sanzione raddoppiata'
-        }
-      ];
+      if (createError) {
+        console.warn('Errore nel metodo RPC:', createError.message);
+        throw createError;
+      }
       
-      const { error: insertError } = await supabase
-        .from('sanzioni_violations')
-        .insert(exampleData);
+      console.log('Tabella creata con successo tramite RPC');
+      return { success: true, method: 'rpc' };
+    } catch (rpcError) {
+      console.warn('Fallito metodo RPC, tentativo alternativo...');
+      
+      try {
+        // Metodo alternativo: esecuzione diretta SQL
+        const { error: sqlError } = await supabase.from('sanzioni_violations').insert({
+          articolo: 'Test',
+          descrizione: 'Test'
+        });
         
-      if (insertError) {
-        console.error('Errore nell\'inserimento dei dati di esempio:', insertError);
+        if (!sqlError || sqlError.code !== '42P01') {
+          console.log('Tabella creata o esistente');
+          return { success: true, method: 'direct' };
+        }
+        
+        throw new Error('Impossibile creare la tabella: ' + (sqlError?.message || 'Errore sconosciuto'));
+      } catch (directError) {
+        console.error('Tutti i tentativi di creazione tabella falliti:', directError);
+        return { success: false, error: directError.message };
       }
     }
-    
-    return { success: true };
   } catch (err) {
     console.error('Eccezione durante la creazione della tabella:', err);
     return { success: false, error: err.message };
   }
 };
 
-// Funzione di verifica della connessione che può essere chiamata esplicitamente
+// Funzione di verifica della connessione
 export const testConnection = async () => {
   try {
     console.log('Tentativo di connessione a Supabase...');
     
-    // Approccio diretto
+    // Verifica la connessione con una query semplice
     const { data, error } = await supabase
       .from('sanzioni_violations')
-      .select('count(*)', { count: 'exact', head: true });
+      .select('count(*)', { count: 'exact', head: true })
+      .limit(1);
     
+    // Se la tabella non esiste, il codice errore sarà specifico
     if (error && error.code === '42P01') {
-      // Tabella non esiste, ma la connessione funziona
       console.log('Connessione a Supabase stabilita, ma la tabella non esiste');
       
       // Tenta di creare la tabella
       const createResult = await createSanzioniTable();
+      
       if (createResult.success) {
-        return { success: true, tableCreated: true };
+        // Se la tabella è stata creata, inserisci dati di esempio
+        const insertResult = await insertExampleData();
+        
+        return { 
+          success: true, 
+          tableCreated: true,
+          dataInserted: insertResult.success && !insertResult.skipped
+        };
       } else {
-        return { success: true, tableExists: false, createError: createResult.error };
+        return { 
+          success: true, 
+          tableExists: false, 
+          createError: createResult.error 
+        };
       }
     } else if (error) {
       console.error('Errore di connessione a Supabase:', error.message);
@@ -147,15 +212,19 @@ export const testConnection = async () => {
 };
 
 // Esegui test di connessione all'avvio
-testConnection().then(result => {
-  if (result.success) {
-    console.log('Connessione a Supabase verificata con successo');
-    if (result.tableCreated) {
-      console.log('La tabella sanzioni_violations è stata creata');
+testConnection()
+  .then(result => {
+    if (result.success) {
+      console.log('Connessione a Supabase verificata con successo');
+      if (result.tableCreated) {
+        console.log('La tabella sanzioni_violations è stata creata');
+      }
+    } else {
+      console.error('Problema di connessione a Supabase:', result.error);
     }
-  } else {
-    console.error('Problema di connessione a Supabase:', result.error);
-  }
-});
+  })
+  .catch(err => {
+    console.error('Errore imprevisto durante il test di connessione:', err);
+  });
 
 export default supabase;

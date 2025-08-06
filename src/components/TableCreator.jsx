@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
-import supabase from '../lib/supabase';
+import supabase, { createSanzioniTable, insertExampleData } from '../lib/supabase';
 
 const { FiDatabase, FiCheck, FiAlertTriangle, FiLoader, FiServer } = FiIcons;
 
@@ -34,108 +34,13 @@ const TableCreator = ({ onComplete }) => {
     checkConnection();
   }, []);
 
-  const createTableDirect = async () => {
-    try {
-      // Approccio SQL diretto
-      const createTableSQL = `
-        CREATE TABLE IF NOT EXISTS sanzioni_violations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          articolo TEXT NOT NULL,
-          comma TEXT,
-          categoria TEXT,
-          descrizione TEXT NOT NULL,
-          pmr NUMERIC(10,2),
-          sanzioni_accessorie TEXT,
-          altro TEXT,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        ALTER TABLE sanzioni_violations ENABLE ROW LEVEL SECURITY;
-        DROP POLICY IF EXISTS "Allow all operations" ON sanzioni_violations;
-        CREATE POLICY "Allow all operations" ON sanzioni_violations FOR ALL USING (true) WITH CHECK (true);
-      `;
-      
-      // Esegui la query SQL direttamente
-      const { error } = await supabase.rpc('exec_sql', { sql: createTableSQL });
-      
-      if (error) {
-        throw new Error(`Errore nell'esecuzione SQL diretta: ${error.message}`);
-      }
-      
-      return true;
-    } catch (err) {
-      console.error('Errore nel metodo diretto:', err);
-      return false;
-    }
-  };
-
-  const createTableRPC = async () => {
-    try {
-      // Tentativo con RPC
-      const { error } = await supabase.rpc('create_sanzioni_table');
-      
-      if (error) {
-        throw new Error(`Errore nell'RPC: ${error.message}`);
-      }
-      
-      return true;
-    } catch (err) {
-      console.error('Errore nel metodo RPC:', err);
-      return false;
-    }
-  };
-
-  const createTableREST = async () => {
-    try {
-      // Tentativo con REST API
-      const createTableSQL = `
-        CREATE TABLE IF NOT EXISTS sanzioni_violations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          articolo TEXT NOT NULL,
-          comma TEXT,
-          categoria TEXT,
-          descrizione TEXT NOT NULL,
-          pmr NUMERIC(10,2),
-          sanzioni_accessorie TEXT,
-          altro TEXT,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        ALTER TABLE sanzioni_violations ENABLE ROW LEVEL SECURITY;
-        DROP POLICY IF EXISTS "Allow all operations" ON sanzioni_violations;
-        CREATE POLICY "Allow all operations" ON sanzioni_violations FOR ALL USING (true) WITH CHECK (true);
-      `;
-
-      // Esegui la query SQL tramite REST API
-      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/rpc/exec_sql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabase.supabaseKey,
-          'Authorization': `Bearer ${supabase.supabaseKey}`
-        },
-        body: JSON.stringify({ sql: createTableSQL })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Errore nella REST API: ${response.statusText}`);
-      }
-      
-      return true;
-    } catch (err) {
-      console.error('Errore nel metodo REST:', err);
-      return false;
-    }
-  };
-
   const verifyTableExists = async () => {
     try {
       // Verifica se la tabella esiste
       const { data, error } = await supabase
         .from('sanzioni_violations')
-        .select('count(*)', { count: 'exact', head: true });
+        .select('count(*)', { count: 'exact', head: true })
+        .limit(1);
         
       if (error) {
         return false;
@@ -165,31 +70,17 @@ const TableCreator = ({ onComplete }) => {
         return;
       }
       
-      let success = false;
+      // Tenta di creare la tabella
+      const createResult = await createSanzioniTable();
       
-      // Tenta con il metodo corrente
-      if (creationMethod === 'direct') {
-        success = await createTableDirect();
-      } else if (creationMethod === 'rpc') {
-        success = await createTableRPC();
-      } else if (creationMethod === 'rest') {
-        success = await createTableREST();
-      }
-      
-      // Se fallisce, prova con un altro metodo
-      if (!success) {
-        if (creationMethod === 'direct') {
-          setCreationMethod('rpc');
-        } else if (creationMethod === 'rpc') {
-          setCreationMethod('rest');
-        }
-        
-        // Se abbiamo esaurito i tentativi, mostra errore
+      if (!createResult.success) {
+        // Se fallisce e abbiamo esaurito i tentativi, mostra errore
         if (attempts >= maxAttempts) {
           throw new Error(`Impossibile creare la tabella dopo ${maxAttempts} tentativi.`);
         }
         
-        // Altrimenti riprova con il nuovo metodo
+        // Altrimenti riprova con un altro metodo
+        setCreationMethod(prev => prev === 'direct' ? 'rpc' : 'direct');
         setStatus('idle');
         return;
       }
@@ -202,31 +93,10 @@ const TableCreator = ({ onComplete }) => {
       }
       
       // Inserisci dati di esempio
-      const { error: insertError } = await supabase
-        .from('sanzioni_violations')
-        .insert([
-          {
-            articolo: 'Art. 7',
-            comma: '1',
-            categoria: 'CONVIVENZA CIVILE',
-            descrizione: 'Mancato rispetto delle norme di convivenza civile',
-            pmr: 50.00,
-            sanzioni_accessorie: 'Nessuna',
-            altro: ''
-          },
-          {
-            articolo: 'Art. 12',
-            comma: '3',
-            categoria: 'IGIENE E PUBBLICO DECORO',
-            descrizione: 'Abbandono di rifiuti su suolo pubblico',
-            pmr: 150.00,
-            sanzioni_accessorie: 'Obbligo di pulizia dell\'area',
-            altro: 'Recidiva: sanzione raddoppiata'
-          }
-        ]);
+      const insertResult = await insertExampleData();
       
-      if (insertError) {
-        console.warn('Errore nell\'inserimento dei dati di esempio:', insertError);
+      if (!insertResult.success && !insertResult.skipped) {
+        console.warn('Errore nell\'inserimento dei dati di esempio:', insertResult.error);
       }
 
       setStatus('success');
@@ -242,7 +112,6 @@ const TableCreator = ({ onComplete }) => {
   const getMethodLabel = () => {
     if (creationMethod === 'direct') return 'SQL diretto';
     if (creationMethod === 'rpc') return 'Funzione RPC';
-    if (creationMethod === 'rest') return 'REST API';
     return 'Sconosciuto';
   };
 

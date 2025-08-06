@@ -58,15 +58,18 @@ const NetworkStatus = () => {
 
   const getStatusColor = () => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'offline': return 'bg-red-500';
-      default: return 'bg-yellow-500';
+      case 'online':
+        return 'bg-green-500';
+      case 'offline':
+        return 'bg-red-500';
+      default:
+        return 'bg-yellow-500';
     }
   };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <motion.div 
+      <motion.div
         className="bg-white rounded-full shadow-lg p-2 flex items-center"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,9 +80,9 @@ const NetworkStatus = () => {
           <motion.div 
             className={`w-3 h-3 rounded-full ${getStatusColor()}`}
             animate={{ 
-              boxShadow: status === 'checking' 
-                ? ['0 0 0 rgba(0,0,0,0)', '0 0 10px rgba(0,0,0,0.3)', '0 0 0 rgba(0,0,0,0)'] 
-                : '0 0 0 rgba(0,0,0,0)'
+              boxShadow: status === 'checking' ? 
+                ['0 0 0 rgba(0,0,0,0)', '0 0 10px rgba(0,0,0,0.3)', '0 0 0 rgba(0,0,0,0)'] : 
+                '0 0 0 rgba(0,0,0,0)'
             }}
             transition={{ duration: 1, repeat: status === 'checking' ? Infinity : 0 }}
           />
@@ -100,9 +103,7 @@ const NetworkStatus = () => {
           )}
           
           <span className="text-xs text-gray-600 ml-1">
-            {status === 'online' ? 'Connesso' : 
-             status === 'offline' ? 'Disconnesso' : 
-             'Verifica...'}
+            {status === 'online' ? 'Connesso' : status === 'offline' ? 'Disconnesso' : 'Verifica...'}
           </span>
           
           {lastChecked && (

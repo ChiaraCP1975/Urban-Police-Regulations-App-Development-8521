@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import StatsBar from './components/StatsBar';
@@ -10,6 +11,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 import NetworkStatus from './components/NetworkStatus';
 import TableCreator from './components/TableCreator';
+
 import { useSanzioni } from './hooks/useSanzioni';
 import './App.css';
 
@@ -20,17 +22,17 @@ function App() {
   const [editingViolazione, setEditingViolazione] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tableExists, setTableExists] = useState(true);
-
-  const { 
-    sanzioni, 
-    loading, 
-    error, 
+  
+  const {
+    sanzioni,
+    loading,
+    error,
     connected,
-    saveSanzione, 
-    updateSanzione, 
-    deleteSanzione, 
+    saveSanzione,
+    updateSanzione,
+    deleteSanzione,
     refreshSanzioni,
-    checkTableExists 
+    checkTableExists
   } = useSanzioni();
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function App() {
     if (!Array.isArray(sanzioniArray) || sanzioniArray.length === 0) {
       return [];
     }
-    
+
     return sanzioniArray.sort((a, b) => {
       // Estrai il numero dell'articolo (rimuovi "Art. " e converti in numero)
       const getArticoloNumber = (articolo) => {
@@ -80,13 +82,13 @@ function App() {
 
   const filteredSanzioni = useMemo(() => {
     let filtered = sanzioni;
-
+    
     if (selectedCategory) {
       filtered = filtered.filter(sanzione => 
         sanzione.categoria === selectedCategory
       );
     }
-
+    
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(sanzione => 
@@ -98,7 +100,7 @@ function App() {
         (sanzione.altro || '').toLowerCase().includes(term)
       );
     }
-
+    
     // Ordina anche i risultati filtrati
     return sortSanzioni([...filtered]);
   }, [searchTerm, selectedCategory, sanzioni]);
@@ -121,11 +123,13 @@ function App() {
   const handleSaveViolazione = async (violazioneData) => {
     try {
       setIsSubmitting(true);
+      
       if (editingViolazione) {
         await updateSanzione(editingViolazione.id, violazioneData);
       } else {
         await saveSanzione(violazioneData);
       }
+      
       setIsFormOpen(false);
       setEditingViolazione(null);
     } catch (err) {
@@ -162,7 +166,7 @@ function App() {
     ...sanzione,
     sanzioniAccessorie: sanzione.sanzioni_accessorie
   }));
-  
+
   const convertedFiltered = filteredSanzioni.map(sanzione => ({
     ...sanzione,
     sanzioniAccessorie: sanzione.sanzioni_accessorie
@@ -198,10 +202,7 @@ function App() {
       <div className="min-h-screen bg-slate-100">
         <Header />
         <main className="max-w-6xl mx-auto px-4 py-8">
-          <ErrorMessage 
-            message={error}
-            onRetry={refreshSanzioni}
-          />
+          <ErrorMessage message={error} onRetry={refreshSanzioni} />
         </main>
         <NetworkStatus />
       </div>
@@ -211,6 +212,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-100">
       <Header />
+      
       <main className="max-w-6xl mx-auto px-4 py-8">
         <SearchBar
           searchTerm={searchTerm}
@@ -219,16 +221,16 @@ function App() {
           setSelectedCategory={setSelectedCategory}
           onClear={handleClearSearch}
         />
-
+        
         <StatsBar
           totalSanzioni={convertedSanzioni.length}
           filteredSanzioni={convertedFiltered.length}
           searchTerm={searchTerm}
           selectedCategory={selectedCategory}
         />
-
+        
         <ActionButtons onAddViolazione={handleAddViolazione} />
-
+        
         <AnimatePresence>
           {convertedFiltered.length === 0 ? (
             <motion.div
@@ -241,16 +243,17 @@ function App() {
                 <div className="bg-gray-100 p-6 rounded-full inline-block mb-4">
                   <div className="text-gray-400 text-5xl">📋</div>
                 </div>
+                
                 <h3 className="text-xl font-semibold text-gray-700 mb-3">
-                  {convertedSanzioni.length === 0 
-                    ? 'Nessuna violazione presente' 
-                    : 'Nessun risultato trovato'}
+                  {convertedSanzioni.length === 0 ? 'Nessuna violazione presente' : 'Nessun risultato trovato'}
                 </h3>
+                
                 <p className="text-gray-500 mb-6">
-                  {convertedSanzioni.length === 0
-                    ? 'Inizia aggiungendo la prima violazione'
-                    : 'Prova a modificare i termini di ricerca o i filtri'}
+                  {convertedSanzioni.length === 0 ? 
+                    'Inizia aggiungendo la prima violazione' : 
+                    'Prova a modificare i termini di ricerca o i filtri'}
                 </p>
+                
                 {convertedSanzioni.length === 0 ? (
                   <motion.button
                     onClick={handleAddViolazione}
@@ -292,7 +295,7 @@ function App() {
           )}
         </AnimatePresence>
       </main>
-
+      
       <footer className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-6 mt-12">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-sm text-gray-400">
@@ -300,7 +303,7 @@ function App() {
           </p>
         </div>
       </footer>
-
+      
       <AnimatePresence>
         {isFormOpen && (
           <ViolazioneForm
