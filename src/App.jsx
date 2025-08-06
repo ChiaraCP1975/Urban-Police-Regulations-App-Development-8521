@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
@@ -9,6 +9,7 @@ import ViolazioneForm from './components/ViolazioneForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 import NetworkStatus from './components/NetworkStatus';
+import TableCreator from './components/TableCreator';
 import { useSanzioni } from './hooks/useSanzioni';
 import './App.css';
 
@@ -18,6 +19,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingViolazione, setEditingViolazione] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tableExists, setTableExists] = useState(true);
 
   const { 
     sanzioni, 
@@ -27,8 +29,18 @@ function App() {
     saveSanzione, 
     updateSanzione, 
     deleteSanzione, 
-    refreshSanzioni 
+    refreshSanzioni,
+    checkTableExists 
   } = useSanzioni();
+
+  useEffect(() => {
+    const verifyTable = async () => {
+      const exists = await checkTableExists();
+      setTableExists(exists);
+    };
+    
+    verifyTable();
+  }, [checkTableExists]);
 
   // Funzione per ordinare anche i risultati filtrati
   const sortSanzioni = (sanzioniArray) => {
@@ -140,6 +152,11 @@ function App() {
     setEditingViolazione(null);
   };
 
+  const handleTableCreated = () => {
+    setTableExists(true);
+    refreshSanzioni();
+  };
+
   // Converti i dati per compatibilità con i componenti esistenti
   const convertedSanzioni = sanzioni.map(sanzione => ({
     ...sanzione,
@@ -150,6 +167,19 @@ function App() {
     ...sanzione,
     sanzioniAccessorie: sanzione.sanzioni_accessorie
   }));
+
+  // Se la tabella non esiste, mostra il componente per crearla
+  if (!tableExists) {
+    return (
+      <div className="min-h-screen bg-slate-100">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <LoadingSpinner />
+        </main>
+        <TableCreator onComplete={handleTableCreated} />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

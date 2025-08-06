@@ -7,6 +7,7 @@ export const useSanzioni = () => {
   const [error, setError] = useState(null);
   const [connected, setConnected] = useState(false);
   const [retries, setRetries] = useState(0);
+  const [tableVerified, setTableVerified] = useState(false);
   const MAX_RETRIES = 3;
 
   // Funzione per ordinare le sanzioni per articolo e comma
@@ -45,6 +46,30 @@ export const useSanzioni = () => {
     });
   };
 
+  // Verifica che la tabella esista
+  const checkTableExists = useCallback(async () => {
+    try {
+      console.log('Verifica esistenza tabella sanzioni_violations...');
+      const { data, error } = await supabase
+        .from('sanzioni_violations')
+        .select('count(*)', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('La tabella non esiste o non è accessibile:', error);
+        setTableVerified(false);
+        return false;
+      }
+      
+      console.log('Tabella verificata con successo');
+      setTableVerified(true);
+      return true;
+    } catch (err) {
+      console.error('Errore durante la verifica della tabella:', err);
+      setTableVerified(false);
+      return false;
+    }
+  }, []);
+
   // Verifica connessione a Supabase
   const checkConnection = async () => {
     try {
@@ -58,11 +83,18 @@ export const useSanzioni = () => {
         return false;
       }
       
+      // Verifica anche l'esistenza della tabella
+      const tableExists = await checkTableExists();
+      if (!tableExists) {
+        setError('La tabella delle sanzioni non esiste. È necessario crearla.');
+        return false;
+      }
+      
       setConnected(true);
       setError(null);
       return true;
     } catch (err) {
-      console.error('Errore durante il controllo connessione:', err.message);
+      console.error('Errore durante il controllo connessione:', err);
       setConnected(false);
       setError('Errore durante il controllo della connessione: ' + err.message);
       return false;
@@ -90,6 +122,14 @@ export const useSanzioni = () => {
         return;
       }
 
+      // Verifica che la tabella esista
+      const tableExists = await checkTableExists();
+      if (!tableExists) {
+        setError('La tabella delle sanzioni non esiste. È necessario crearla.');
+        setLoading(false);
+        return;
+      }
+
       console.log('Caricamento sanzioni...');
       const { data, error } = await supabase
         .from('sanzioni_violations')
@@ -111,7 +151,7 @@ export const useSanzioni = () => {
     } finally {
       setLoading(false);
     }
-  }, [retries]);
+  }, [retries, checkTableExists]);
 
   // Salva una nuova sanzione
   const saveSanzione = async (sanzioneData) => {
@@ -224,17 +264,25 @@ export const useSanzioni = () => {
 
   // Carica i dati al mount
   useEffect(() => {
-    loadSanzioni();
+    // Verifica che la tabella esista prima di caricare i dati
+    const init = async () => {
+      const tableExists = await checkTableExists();
+      if (tableExists) {
+        loadSanzioni();
+      }
+    };
+    
+    init();
     
     // Cleanup function
     return () => {
       console.log('Pulizia hook useSanzioni');
     };
-  }, [loadSanzioni]);
+  }, [loadSanzioni, checkTableExists]);
 
   // Setup realtime subscription
   useEffect(() => {
-    if (!connected) return;
+    if (!connected || !tableVerified) return;
     
     console.log('Configurazione sottoscrizione realtime...');
     const channel = supabase
@@ -256,7 +304,7 @@ export const useSanzioni = () => {
       console.log('Pulizia sottoscrizione realtime');
       supabase.removeChannel(channel);
     };
-  }, [connected, loadSanzioni]);
+  }, [connected, loadSanzioni, tableVerified]);
 
   return {
     sanzioni,
@@ -266,6 +314,7 @@ export const useSanzioni = () => {
     saveSanzione,
     updateSanzione,
     deleteSanzione,
-    refreshSanzioni: () => loadSanzioni()
+    refreshSanzioni: () => loadSanzioni(),
+    checkTableExists
   };
 };
